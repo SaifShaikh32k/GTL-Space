@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Employee Tracking</title>
+  <style>
+    body { font-family: Arial; text-align: center; padding: 30px; }
+    input, button { padding: 10px; margin: 10px; width: 250px; }
+    button { background: #28a745; color: white; border: none; }
+  </style>
+</head>
+<body>
+
+<h2>Employee Tracking System</h2>
+
+<form id="uploadForm">
+  <input type="text" id="name" placeholder="Employee Name" required><br>
+  <input type="text" id="remarks" placeholder="Remarks"><br>
+  <input type="file" id="image" accept="image/*" required><br>
+  <button type="submit">Upload</button>
+</form>
+
+<p id="status"></p>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyD2K1AW84QIHENB37wxGt49fKGQ3hCSs-I",
+  authDomain: "putting-space.firebaseapp.com",
+  projectId: "putting-space",
+  storageBucket: "putting-space.firebasestorage.app",
+  messagingSenderId: "88028075712",
+  appId: "1:88028075712:web:27450e5551334ebf0c3f25",
+  measurementId: "G-CPKGQKVVWB"
+};
+
+firebase.initializeApp(firebaseConfig);
+const storage = firebase.storage();
+const db = firebase.firestore();
+
+document.getElementById("uploadForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const name = document.getElementById("name").value;
+  const remarks = document.getElementById("remarks").value;
+  const file = document.getElementById("image").files[0];
+
+  if (!file.type.startsWith("image/")) {
+    alert("Only image allowed!");
+    return;
+  }
+
+  if (file.size > 2 * 1024 * 1024) {
+    alert("Max file size is 2MB");
+    return;
+  }
+
+  document.getElementById("status").innerText = "Uploading...";
+
+  const ref = storage.ref("images/" + Date.now() + "_" + file.name);
+  await ref.put(file);
+  const url = await ref.getDownloadURL();
+
+  await db.collection("employees").add({
+    name: name,
+    remarks: remarks,
+    image: url,
+    time: new Date().toLocaleString()
+  });
+
+  document.getElementById("status").innerText = "Uploaded successfully!";
+  document.getElementById("uploadForm").reset();
+});
+</script>
+
+</body>
+</html>
