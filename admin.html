@@ -2,16 +2,109 @@
 <html>
 <head>
   <title>Admin Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <style>
-    body { font-family: Arial; padding: 20px; }
-    table { width: 100%; border-collapse: collapse; }
-    th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
-    img { width: 80px; }
+    body {
+      font-family: Arial;
+      padding: 15px;
+      background: #f5f6fa;
+    }
+
+    h2 {
+      text-align: center;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    th {
+      background: #2f3640;
+      color: white;
+      padding: 12px;
+    }
+
+    td {
+      padding: 10px;
+      text-align: center;
+      border-bottom: 1px solid #ddd;
+    }
+
+    img {
+      width: 60px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button {
+      padding: 6px 10px;
+      border: none;
+      background: red;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: darkred;
+    }
+
+    /* Mobile */
+    @media (max-width: 600px) {
+      table, thead, tbody, th, td, tr {
+        display: block;
+      }
+
+      tr {
+        margin-bottom: 15px;
+        background: white;
+        border-radius: 10px;
+        padding: 10px;
+      }
+
+      td {
+        text-align: left;
+        padding: 8px;
+      }
+
+      td::before {
+        font-weight: bold;
+        display: block;
+      }
+
+      td:nth-child(1)::before { content: "Name"; }
+      td:nth-child(2)::before { content: "Remarks"; }
+      td:nth-child(3)::before { content: "Image"; }
+      td:nth-child(4)::before { content: "Time"; }
+      td:nth-child(5)::before { content: "Action"; }
+    }
+
+    /* Image modal */
+    #modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.8);
+      justify-content: center;
+      align-items: center;
+    }
+
+    #modal img {
+      max-width: 90%;
+      max-height: 90%;
+    }
   </style>
 </head>
+
 <body>
 
-<h2>Admin Dashboard</h2>
+<h2>📊 Admin Dashboard</h2>
 
 <table>
   <thead>
@@ -20,10 +113,16 @@
       <th>Remarks</th>
       <th>Image</th>
       <th>Time</th>
+      <th>Action</th>
     </tr>
   </thead>
   <tbody id="data"></tbody>
 </table>
+
+<!-- Image Modal -->
+<div id="modal" onclick="closeModal()">
+  <img id="modalImg">
+</div>
 
 <script>
 const pass = prompt("Enter password:");
@@ -33,18 +132,41 @@ if(pass !== "1234"){
 }
 
 const table = document.getElementById("data");
-const records = JSON.parse(localStorage.getItem("employees")) || [];
 
-records.reverse().forEach(d => {
-  table.innerHTML += `
-    <tr>
-      <td>${d.name}</td>
-      <td>${d.remarks}</td>
-      <td><img src="${d.image}" /></td>
-      <td>${d.time}</td>
-    </tr>
-  `;
-});
+function loadData() {
+  table.innerHTML = "";
+  let records = JSON.parse(localStorage.getItem("employees")) || [];
+
+  records.reverse().forEach((d, index) => {
+    table.innerHTML += `
+      <tr>
+        <td>${d.name}</td>
+        <td>${d.remarks}</td>
+        <td><img src="${d.image}" onclick="openModal('${d.image}')"/></td>
+        <td>${d.time}</td>
+        <td><button onclick="deleteRow(${records.length - 1 - index})">Delete</button></td>
+      </tr>
+    `;
+  });
+}
+
+function deleteRow(index) {
+  let records = JSON.parse(localStorage.getItem("employees")) || [];
+  records.splice(index, 1);
+  localStorage.setItem("employees", JSON.stringify(records));
+  loadData();
+}
+
+function openModal(src) {
+  document.getElementById("modal").style.display = "flex";
+  document.getElementById("modalImg").src = src;
+}
+
+function closeModal() {
+  document.getElementById("modal").style.display = "none";
+}
+
+loadData();
 </script>
 
 </body>
