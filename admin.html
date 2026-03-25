@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin Dashboard</title>
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 10px; border: 1px solid #ddd; text-align: center; }
+    img { width: 80px; border-radius: 5px; }
+  </style>
+</head>
+<body>
+
+<h2>Admin Dashboard</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Remarks</th>
+      <th>Image</th>
+      <th>Time</th>
+    </tr>
+  </thead>
+  <tbody id="data"></tbody>
+</table>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+<script>
+// 🔐 Simple password protection
+const pass = prompt("Enter Admin Password:");
+if(pass !== "1234"){
+  alert("Access Denied");
+  window.location.href = "/";
+}
+
+const firebaseConfig = {
+  apiKey: "AIzaSyD2K1AW84QIHENB37wxGt49fKGQ3hCSs-I",
+  authDomain: "putting-space.firebaseapp.com",
+  projectId: "putting-space",
+  storageBucket: "putting-space.firebasestorage.app",
+  messagingSenderId: "88028075712",
+  appId: "1:88028075712:web:27450e5551334ebf0c3f25",
+  measurementId: "G-CPKGQKVVWB"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+const table = document.getElementById("data");
+
+db.collection("employees").orderBy("time", "desc")
+  .onSnapshot(snapshot => {
+    table.innerHTML = "";
+
+    snapshot.forEach(doc => {
+      const d = doc.data();
+
+      table.innerHTML += `
+        <tr>
+          <td>${d.name}</td>
+          <td>${d.remarks}</td>
+          <td><img src="${d.image}" /></td>
+          <td>${d.time}</td>
+        </tr>
+      `;
+    });
+  });
+</script>
+
+</body>
+</html>
