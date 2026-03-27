@@ -1,62 +1,519 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Employee Tracking</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet"/>
+  <script src="https://static.filestackapi.com/filestack-js/3.x.x/filestack.min.js"></script>
   <style>
-    body { font-family: Arial; text-align: center; padding: 30px; }
-    input, button { padding: 10px; margin: 10px; width: 250px; }
-    button { background: green; color: white; border: none; }
+    :root {
+      --bg: #0a0b0f;
+      --surface: #12141a;
+      --surface2: #1c1f28;
+      --border: rgba(255,255,255,0.07);
+      --border-hover: rgba(255,255,255,0.15);
+      --accent: #e8ff47;
+      --accent-dim: rgba(232,255,71,0.1);
+      --accent2: #ff6b35;
+      --green: #22c55e;
+      --green-dim: rgba(34,197,94,0.12);
+      --text: #f0f0f0;
+      --muted: #6b7280;
+      --radius: 14px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Mono', monospace;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      overflow-x: hidden;
+    }
+
+    /* Subtle grid background */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,.015) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.015) 1px, transparent 1px);
+      background-size: 48px 48px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Glow blob */
+    body::after {
+      content: '';
+      position: fixed;
+      top: -200px; left: 50%;
+      transform: translateX(-50%);
+      width: 700px; height: 500px;
+      background: radial-gradient(ellipse, rgba(232,255,71,0.06) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .card {
+      position: relative;
+      z-index: 1;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      width: 100%;
+      max-width: 480px;
+      overflow: hidden;
+      animation: cardIn .5s cubic-bezier(.175,.885,.32,1.275) both;
+    }
+
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(32px) scale(.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* ─── HEADER ─── */
+    .card-header {
+      padding: 32px 32px 0;
+      position: relative;
+    }
+    .header-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--accent-dim);
+      border: 1px solid rgba(232,255,71,0.2);
+      color: var(--accent);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 5px 12px;
+      border-radius: 100px;
+      margin-bottom: 16px;
+    }
+    .header-tag::before {
+      content: '';
+      width: 6px; height: 6px;
+      background: var(--accent);
+      border-radius: 50%;
+      animation: blink 2s infinite;
+    }
+    @keyframes blink {
+      0%,100% { opacity: 1; } 50% { opacity: .2; }
+    }
+    .card-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 28px;
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.5px;
+      margin-bottom: 6px;
+    }
+    .card-title span { color: var(--accent); }
+    .card-subtitle {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 28px;
+    }
+
+    /* ─── DIVIDER ─── */
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 0 32px;
+    }
+
+    /* ─── FORM ─── */
+    .card-body { padding: 28px 32px 32px; }
+
+    .field {
+      margin-bottom: 18px;
+      animation: fieldIn .4s ease both;
+    }
+    .field:nth-child(1) { animation-delay: .05s; }
+    .field:nth-child(2) { animation-delay: .1s; }
+    .field:nth-child(3) { animation-delay: .15s; }
+
+    @keyframes fieldIn {
+      from { opacity: 0; transform: translateX(-10px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    label {
+      display: block;
+      font-size: 11px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .input-wrap {
+      position: relative;
+    }
+    .input-icon {
+      position: absolute;
+      left: 14px; top: 50%;
+      transform: translateY(-50%);
+      font-size: 15px;
+      pointer-events: none;
+    }
+    input[type="text"] {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      font-size: 14px;
+      padding: 13px 14px 13px 42px;
+      border-radius: 10px;
+      outline: none;
+      transition: border-color .2s, background .2s, box-shadow .2s;
+    }
+    input[type="text"]::placeholder { color: var(--muted); }
+    input[type="text"]:focus {
+      border-color: var(--accent);
+      background: rgba(232,255,71,0.03);
+      box-shadow: 0 0 0 3px rgba(232,255,71,0.08);
+    }
+
+    /* ─── UPLOAD ZONE ─── */
+    .upload-zone {
+      background: var(--surface2);
+      border: 1.5px dashed var(--border);
+      border-radius: 12px;
+      padding: 28px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color .2s, background .2s;
+      position: relative;
+      overflow: hidden;
+    }
+    .upload-zone:hover {
+      border-color: var(--accent);
+      background: var(--accent-dim);
+    }
+    .upload-zone.has-image {
+      border-style: solid;
+      border-color: var(--green);
+      background: var(--green-dim);
+      padding: 0;
+    }
+    .upload-icon { font-size: 32px; margin-bottom: 10px; }
+    .upload-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .upload-sub { font-size: 11px; color: var(--muted); }
+    #preview-img {
+      width: 100%; height: 180px;
+      object-fit: cover;
+      border-radius: 10px;
+      display: none;
+    }
+    .upload-zone.has-image #preview-img { display: block; }
+    .upload-zone.has-image .upload-content { display: none; }
+    .img-change-overlay {
+      display: none;
+      position: absolute; inset: 0;
+      background: rgba(0,0,0,.5);
+      align-items: center;
+      justify-content: center;
+      font-family: 'Syne', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      color: #fff;
+      border-radius: 10px;
+      backdrop-filter: blur(2px);
+    }
+    .upload-zone.has-image:hover .img-change-overlay { display: flex; }
+
+    /* ─── SUBMIT BTN ─── */
+    .submit-btn {
+      width: 100%;
+      background: var(--accent);
+      color: #000;
+      border: none;
+      padding: 15px;
+      border-radius: 12px;
+      font-family: 'Syne', sans-serif;
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: .3px;
+      cursor: pointer;
+      transition: opacity .2s, transform .15s, box-shadow .2s;
+      margin-top: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+    .submit-btn:hover:not(:disabled) {
+      opacity: .92;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(232,255,71,0.25);
+    }
+    .submit-btn:active:not(:disabled) { transform: translateY(0); }
+    .submit-btn:disabled { opacity: .5; cursor: not-allowed; }
+    .submit-btn .btn-loader {
+      display: none;
+      width: 18px; height: 18px;
+      border: 2px solid rgba(0,0,0,.3);
+      border-top-color: #000;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      margin: 0 auto;
+    }
+    .submit-btn.loading .btn-text { display: none; }
+    .submit-btn.loading .btn-loader { display: block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ─── STATUS ─── */
+    #status {
+      margin-top: 16px;
+      min-height: 20px;
+      font-size: 13px;
+      text-align: center;
+      transition: all .3s;
+    }
+    #status.success {
+      color: var(--green);
+      animation: popIn .3s cubic-bezier(.175,.885,.32,1.275);
+    }
+    #status.error { color: #ff4757; animation: shake .3s ease; }
+    @keyframes popIn {
+      from { transform: scale(.8); opacity: 0; }
+      to   { transform: scale(1); opacity: 1; }
+    }
+    @keyframes shake {
+      0%,100% { transform: translateX(0); }
+      25% { transform: translateX(-6px); }
+      75% { transform: translateX(6px); }
+    }
+
+    /* ─── FOOTER ─── */
+    .card-footer {
+      padding: 16px 32px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid var(--border);
+    }
+    .footer-count {
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .footer-count strong {
+      font-family: 'Syne', sans-serif;
+      color: var(--accent);
+      font-size: 14px;
+    }
+    .view-link {
+      font-size: 12px;
+      color: var(--muted);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: color .2s;
+    }
+    .view-link:hover { color: var(--accent); }
+
+    /* ─── TOAST ─── */
+    #toast {
+      position: fixed; bottom: 28px; left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 12px 22px;
+      border-radius: 100px;
+      font-size: 13px;
+      color: var(--text);
+      z-index: 999;
+      transition: transform .35s cubic-bezier(.175,.885,.32,1.275);
+      white-space: nowrap;
+      pointer-events: none;
+    }
+    #toast.show { transform: translateX(-50%) translateY(0); }
+
+    @media (max-width: 520px) {
+      .card-header, .card-body, .card-footer { padding-left: 20px; padding-right: 20px; }
+      .divider { margin: 0 20px; }
+      .card-title { font-size: 22px; }
+    }
   </style>
 </head>
 <body>
 
-<h2>Employee Tracking System</h2>
+<div class="card">
+  <!-- HEADER -->
+  <div class="card-header">
+    <div class="header-tag">Employee Portal</div>
+    <h1 class="card-title">Track <span>Your</span><br/>Check-In</h1>
+    <p class="card-subtitle">Fill in your details and upload a photo to log your attendance.</p>
+  </div>
 
-<input type="text" id="name" placeholder="Employee Name"><br>
-<input type="text" id="remarks" placeholder="Remarks"><br>
+  <div class="divider"></div>
 
-<button onclick="uploadImage()">Upload Image</button>
+  <!-- FORM BODY -->
+  <div class="card-body">
+    <!-- Name -->
+    <div class="field">
+      <label>Full Name</label>
+      <div class="input-wrap">
+        <span class="input-icon">👤</span>
+        <input type="text" id="name" placeholder="e.g. Ravi Kumar" autocomplete="off"/>
+      </div>
+    </div>
 
-<p id="status"></p>
+    <!-- Remarks -->
+    <div class="field">
+      <label>Remarks <span style="color:var(--muted);font-size:10px;">(optional)</span></label>
+      <div class="input-wrap">
+        <span class="input-icon">💬</span>
+        <input type="text" id="remarks" placeholder="e.g. WFH, On-site, Late..." autocomplete="off"/>
+      </div>
+    </div>
 
-<!-- Filestack CDN -->
-<script src="https://static.filestackapi.com/filestack-js/3.x.x/filestack.min.js"></script>
+    <!-- Upload -->
+    <div class="field">
+      <label>Photo</label>
+      <div class="upload-zone" id="upload-zone" onclick="triggerUpload()">
+        <div class="upload-content">
+          <div class="upload-icon">📷</div>
+          <div class="upload-title">Tap to Upload Photo</div>
+          <div class="upload-sub">JPG, PNG · Max 2MB</div>
+        </div>
+        <img id="preview-img" alt="Preview"/>
+        <div class="img-change-overlay">🔄 Change Photo</div>
+      </div>
+    </div>
+
+    <!-- Submit -->
+    <button class="submit-btn" id="submit-btn" onclick="submitRecord()">
+      <span class="btn-text">✅ &nbsp;Submit Check-In</span>
+      <span class="btn-loader"></span>
+    </button>
+
+    <div id="status"></div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="card-footer">
+    <div class="footer-count">
+      <strong id="record-count">0</strong> records logged
+    </div>
+    <a class="view-link" href="admin_dashboard.html">View Dashboard →</a>
+  </div>
+</div>
+
+<div id="toast"></div>
 
 <script>
-const client = filestack.init("A2VXy8g3bRpe8sFbMAoVVz"); // your API key
+  const API_KEY = "A2VXy8g3bRpe8sFbMAoVVz";
+  const client = filestack.init(API_KEY);
+  let uploadedImageUrl = "";
 
-function uploadImage() {
-  const name = document.getElementById("name").value;
-  const remarks = document.getElementById("remarks").value;
+  // Count on load
+  function updateCount() {
+    const records = JSON.parse(localStorage.getItem("employees")) || [];
+    document.getElementById("record-count").textContent = records.length;
+  }
+  updateCount();
 
-  if (!name) {
-    alert("Enter name");
-    return;
+  function triggerUpload() {
+    client.picker({
+      accept: ['image/*'],
+      maxSize: 2 * 1024 * 1024,
+      onUploadDone: function(res) {
+        uploadedImageUrl = res.filesUploaded[0].url;
+        const zone = document.getElementById("upload-zone");
+        const img = document.getElementById("preview-img");
+        img.src = uploadedImageUrl;
+        zone.classList.add("has-image");
+        showToast("📸 Photo uploaded!");
+      }
+    }).open();
   }
 
-  client.picker({
-    accept: ['image/*'],
-    maxSize: 2 * 1024 * 1024,
-    onUploadDone: function(res) {
+  function submitRecord() {
+    const name = document.getElementById("name").value.trim();
+    const remarks = document.getElementById("remarks").value.trim();
+    const statusEl = document.getElementById("status");
+    const btn = document.getElementById("submit-btn");
 
-      const imageUrl = res.filesUploaded[0].url;
+    statusEl.className = "";
+    statusEl.textContent = "";
 
+    if (!name) {
+      statusEl.className = "error";
+      statusEl.textContent = "⚠️ Please enter your name.";
+      document.getElementById("name").focus();
+      return;
+    }
+    if (!uploadedImageUrl) {
+      statusEl.className = "error";
+      statusEl.textContent = "⚠️ Please upload a photo.";
+      return;
+    }
+
+    btn.classList.add("loading");
+    btn.disabled = true;
+
+    setTimeout(() => {
       const data = {
-        name: name,
-        remarks: remarks,
-        image: imageUrl,
+        name,
+        remarks,
+        image: uploadedImageUrl,
         time: new Date().toLocaleString()
       };
-
-      let records = JSON.parse(localStorage.getItem("employees")) || [];
+      const records = JSON.parse(localStorage.getItem("employees")) || [];
       records.push(data);
       localStorage.setItem("employees", JSON.stringify(records));
 
-      document.getElementById("status").innerText = "Uploaded Successfully!";
-    }
-  }).open();
-}
-</script>
+      btn.classList.remove("loading");
+      btn.disabled = false;
 
+      statusEl.className = "success";
+      statusEl.textContent = "✅ Check-in recorded successfully!";
+      updateCount();
+
+      // Reset form after delay
+      setTimeout(() => {
+        document.getElementById("name").value = "";
+        document.getElementById("remarks").value = "";
+        uploadedImageUrl = "";
+        const zone = document.getElementById("upload-zone");
+        zone.classList.remove("has-image");
+        document.getElementById("preview-img").src = "";
+        statusEl.className = "";
+        statusEl.textContent = "";
+      }, 2500);
+
+    }, 800);
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById("toast");
+    t.textContent = msg;
+    t.classList.add("show");
+    setTimeout(() => t.classList.remove("show"), 3000);
+  }
+
+  // Allow Enter key on inputs
+  document.querySelectorAll("input").forEach(el => {
+    el.addEventListener("keydown", e => {
+      if (e.key === "Enter") submitRecord();
+    });
+  });
+</script>
 </body>
 </html>
