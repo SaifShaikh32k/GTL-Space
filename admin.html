@@ -1,173 +1,782 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Admin Dashboard</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
   <style>
-    body {
-      font-family: Arial;
-      padding: 15px;
-      background: #f5f6fa;
+    :root {
+      --bg: #0a0b0f;
+      --surface: #12141a;
+      --surface2: #1c1f28;
+      --border: rgba(255,255,255,0.06);
+      --accent: #e8ff47;
+      --accent2: #ff4757;
+      --text: #f0f0f0;
+      --muted: #6b7280;
+      --green: #22c55e;
+      --radius: 14px;
     }
 
-    h2 {
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Mono', monospace;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* === AUTH GATE === */
+    #auth-gate {
+      position: fixed; inset: 0;
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      animation: fadeIn .3s ease;
+    }
+    .auth-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 48px 40px;
+      width: 380px;
+      max-width: 90vw;
       text-align: center;
     }
+    .auth-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+      display: block;
+    }
+    .auth-box h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+    .auth-box p {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 28px;
+    }
+    .auth-input-wrap {
+      position: relative;
+      margin-bottom: 16px;
+    }
+    .auth-input-wrap input {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      font-size: 15px;
+      padding: 14px 16px 14px 44px;
+      border-radius: 10px;
+      outline: none;
+      transition: border-color .2s;
+      letter-spacing: 4px;
+    }
+    .auth-input-wrap input:focus { border-color: var(--accent); }
+    .auth-input-wrap .lock-icon {
+      position: absolute; left: 14px; top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted); font-size: 16px;
+    }
+    .auth-btn {
+      width: 100%;
+      background: var(--accent);
+      color: #000;
+      border: none;
+      padding: 14px;
+      border-radius: 10px;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 15px;
+      cursor: pointer;
+      transition: opacity .2s, transform .1s;
+    }
+    .auth-btn:hover { opacity: .9; transform: translateY(-1px); }
+    .auth-btn:active { transform: translateY(0); }
+    .auth-error {
+      color: var(--accent2);
+      font-size: 12px;
+      margin-top: 10px;
+      min-height: 18px;
+    }
 
+    /* === MAIN APP === */
+    #app { display: none; animation: slideUp .5s ease; }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; } to { opacity: 1; }
+    }
+
+    /* === TOP BAR === */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 32px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .topbar-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .topbar-logo {
+      width: 36px; height: 36px;
+      background: var(--accent);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+    .topbar-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -0.3px;
+    }
+    .topbar-title span { color: var(--accent); }
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .badge {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      border-radius: 100px;
+      font-size: 12px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .badge-dot {
+      width: 6px; height: 6px;
+      background: var(--green);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%,100% { opacity: 1; } 50% { opacity: .3; }
+    }
+
+    /* === CONTENT === */
+    .content { padding: 28px 32px; max-width: 1300px; margin: 0 auto; }
+
+    /* === STATS ROW === */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      transition: border-color .2s, transform .2s;
+    }
+    .stat-card:hover { border-color: rgba(255,255,255,0.14); transform: translateY(-2px); }
+    .stat-label {
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+    .stat-value {
+      font-family: 'Syne', sans-serif;
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--text);
+    }
+    .stat-icon { float: right; font-size: 22px; margin-top: -4px; }
+
+    /* === TABLE CARD === */
+    .table-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .table-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .table-header-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+    }
+    .search-wrap {
+      position: relative;
+      flex: 1;
+      max-width: 300px;
+    }
+    .search-wrap input {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      padding: 9px 12px 9px 36px;
+      border-radius: 8px;
+      outline: none;
+      transition: border-color .2s;
+    }
+    .search-wrap input::placeholder { color: var(--muted); }
+    .search-wrap input:focus { border-color: var(--accent); }
+    .search-icon {
+      position: absolute; left: 11px; top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted); font-size: 14px;
+    }
+    .export-btn {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 9px 16px;
+      border-radius: 8px;
+      font-family: 'Syne', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .2s, border-color .2s;
+      white-space: nowrap;
+    }
+    .export-btn:hover { background: var(--surface); border-color: rgba(255,255,255,.15); }
+
+    /* === TABLE === */
     table {
       width: 100%;
       border-collapse: collapse;
-      background: white;
-      border-radius: 10px;
-      overflow: hidden;
     }
-
-    th {
-      background: #2f3640;
-      color: white;
-      padding: 12px;
+    thead th {
+      background: var(--surface2);
+      padding: 12px 20px;
+      text-align: left;
+      font-family: 'Syne', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+      white-space: nowrap;
     }
-
+    tbody tr {
+      border-top: 1px solid var(--border);
+      transition: background .15s;
+      animation: rowIn .3s ease both;
+    }
+    @keyframes rowIn {
+      from { opacity: 0; transform: translateX(-8px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    tbody tr:hover { background: rgba(255,255,255,.025); }
     td {
-      padding: 10px;
+      padding: 14px 20px;
+      font-size: 13px;
+      vertical-align: middle;
+      color: var(--text);
+    }
+    .td-name {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .avatar {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, #e8ff47 0%, #22c55e 100%);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 14px;
+      color: #000;
+      flex-shrink: 0;
+    }
+    .name-text { font-weight: 500; }
+    .remarks-chip {
+      display: inline-block;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      padding: 4px 10px;
+      border-radius: 100px;
+      font-size: 12px;
+      color: var(--muted);
+      max-width: 200px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .thumb {
+      width: 52px; height: 40px;
+      object-fit: cover;
+      border-radius: 8px;
+      cursor: pointer;
+      border: 2px solid var(--border);
+      transition: border-color .2s, transform .2s;
+    }
+    .thumb:hover { border-color: var(--accent); transform: scale(1.05); }
+    .time-text { color: var(--muted); font-size: 12px; white-space: nowrap; }
+    .del-btn {
+      background: rgba(255,71,87,.12);
+      color: var(--accent2);
+      border: 1px solid rgba(255,71,87,.2);
+      padding: 7px 14px;
+      border-radius: 8px;
+      font-family: 'Syne', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background .2s, border-color .2s, transform .1s;
+      white-space: nowrap;
+    }
+    .del-btn:hover { background: rgba(255,71,87,.25); border-color: rgba(255,71,87,.5); }
+    .del-btn:active { transform: scale(.96); }
+
+    /* === EMPTY STATE === */
+    .empty-state {
+      padding: 60px 20px;
       text-align: center;
-      border-bottom: 1px solid #ddd;
+      color: var(--muted);
     }
-
-    img {
-      width: 60px;
-      border-radius: 5px;
-      cursor: pointer;
+    .empty-state .empty-icon { font-size: 48px; margin-bottom: 12px; }
+    .empty-state h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 6px;
     }
+    .empty-state p { font-size: 13px; }
 
-    button {
-      padding: 6px 10px;
-      border: none;
-      background: red;
-      color: white;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background: darkred;
-    }
-
-    /* Mobile */
-    @media (max-width: 600px) {
-      table, thead, tbody, th, td, tr {
-        display: block;
-      }
-
-      tr {
-        margin-bottom: 15px;
-        background: white;
-        border-radius: 10px;
-        padding: 10px;
-      }
-
-      td {
-        text-align: left;
-        padding: 8px;
-      }
-
-      td::before {
-        font-weight: bold;
-        display: block;
-      }
-
-      td:nth-child(1)::before { content: "Name"; }
-      td:nth-child(2)::before { content: "Remarks"; }
-      td:nth-child(3)::before { content: "Image"; }
-      td:nth-child(4)::before { content: "Time"; }
-      td:nth-child(5)::before { content: "Action"; }
-    }
-
-    /* Image modal */
+    /* === IMAGE MODAL === */
     #modal {
       display: none;
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.8);
-      justify-content: center;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.85);
+      backdrop-filter: blur(12px);
+      z-index: 500;
       align-items: center;
+      justify-content: center;
+      animation: fadeIn .2s ease;
     }
+    #modal.active { display: flex; }
+    .modal-inner {
+      position: relative;
+      max-width: 90vw;
+      max-height: 90vh;
+    }
+    #modalImg {
+      max-width: 90vw;
+      max-height: 85vh;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      display: block;
+    }
+    .modal-close {
+      position: absolute;
+      top: -16px; right: -16px;
+      width: 36px; height: 36px;
+      background: var(--accent2);
+      color: #fff;
+      border-radius: 50%;
+      border: none;
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+      transition: transform .2s;
+    }
+    .modal-close:hover { transform: scale(1.1); }
 
-    #modal img {
-      max-width: 90%;
-      max-height: 90%;
+    /* === DELETE CONFIRM === */
+    #confirm-modal {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.7);
+      backdrop-filter: blur(8px);
+      z-index: 600;
+      align-items: center;
+      justify-content: center;
+      animation: fadeIn .2s;
+    }
+    #confirm-modal.active { display: flex; }
+    .confirm-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+      width: 340px;
+      max-width: 90vw;
+      text-align: center;
+    }
+    .confirm-box .icon { font-size: 40px; margin-bottom: 12px; }
+    .confirm-box h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 18px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+    .confirm-box p { color: var(--muted); font-size: 13px; margin-bottom: 24px; }
+    .confirm-actions { display: flex; gap: 10px; }
+    .confirm-actions button {
+      flex: 1; padding: 12px;
+      border-radius: 10px;
+      font-family: 'Syne', sans-serif;
+      font-size: 14px; font-weight: 700;
+      cursor: pointer; border: none;
+      transition: opacity .2s;
+    }
+    .confirm-actions button:hover { opacity: .85; }
+    .btn-cancel { background: var(--surface2); color: var(--muted); border: 1px solid var(--border) !important; }
+    .btn-delete { background: var(--accent2); color: #fff; }
+
+    /* === TOAST === */
+    #toast {
+      position: fixed; bottom: 28px; left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 12px 20px;
+      border-radius: 100px;
+      font-size: 13px;
+      color: var(--text);
+      z-index: 700;
+      transition: transform .3s cubic-bezier(.175,.885,.32,1.275);
+      white-space: nowrap;
+    }
+    #toast.show { transform: translateX(-50%) translateY(0); }
+
+    /* === MOBILE === */
+    @media (max-width: 768px) {
+      .topbar { padding: 14px 16px; }
+      .content { padding: 16px; }
+      .topbar-title { font-size: 15px; }
+      .badge-text { display: none; }
+      table, thead, tbody, th, td, tr { display: block; }
+      thead tr { display: none; }
+      tbody tr {
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        margin-bottom: 12px;
+        padding: 14px;
+      }
+      td {
+        padding: 8px 4px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 13px;
+        border-top: 1px solid var(--border);
+      }
+      td:first-child { border-top: none; }
+      td::before {
+        content: attr(data-label);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--muted);
+        font-weight: 600;
+        flex-shrink: 0;
+        margin-right: 10px;
+      }
+      .td-name { flex-direction: row; }
+      .stats-row { grid-template-columns: 1fr 1fr; }
     }
   </style>
 </head>
-
 <body>
 
-<h2>📊 Admin Dashboard</h2>
-
-<table>
-  <thead>
-    <tr>
-      <th>Name</th>
-      <th>Remarks</th>
-      <th>Image</th>
-      <th>Time</th>
-      <th>Action</th>
-    </tr>
-  </thead>
-  <tbody id="data"></tbody>
-</table>
-
-<!-- Image Modal -->
-<div id="modal" onclick="closeModal()">
-  <img id="modalImg">
+<!-- AUTH GATE -->
+<div id="auth-gate">
+  <div class="auth-box">
+    <span class="auth-icon">🔐</span>
+    <h2>Admin Access</h2>
+    <p>Enter your credentials to continue</p>
+    <div class="auth-input-wrap">
+      <span class="lock-icon">🔑</span>
+      <input type="password" id="pw-input" placeholder="••••••••" autocomplete="off"/>
+    </div>
+    <button class="auth-btn" onclick="checkAuth()">Unlock Dashboard</button>
+    <div class="auth-error" id="auth-error"></div>
+  </div>
 </div>
 
+<!-- MAIN APP -->
+<div id="app">
+  <div class="topbar">
+    <div class="topbar-brand">
+      <div class="topbar-logo">📊</div>
+      <div class="topbar-title">Admin<span>Panel</span></div>
+    </div>
+    <div class="topbar-right">
+      <div class="badge">
+        <div class="badge-dot"></div>
+        <span class="badge-text">Live</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+    <!-- STATS -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-label">Total Records <span class="stat-icon">👥</span></div>
+        <div class="stat-value" id="stat-total">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">With Images <span class="stat-icon">🖼️</span></div>
+        <div class="stat-value" id="stat-images">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Today <span class="stat-icon">📅</span></div>
+        <div class="stat-value" id="stat-today">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">With Remarks <span class="stat-icon">💬</span></div>
+        <div class="stat-value" id="stat-remarks">0</div>
+      </div>
+    </div>
+
+    <!-- TABLE CARD -->
+    <div class="table-card">
+      <div class="table-header">
+        <div class="table-header-title">Employee Records</div>
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="search" placeholder="Search name or remarks..." oninput="renderTable()"/>
+        </div>
+        <button class="export-btn" onclick="exportCSV()">⬇ Export CSV</button>
+      </div>
+      <div id="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Employee</th>
+              <th>Remarks</th>
+              <th>Photo</th>
+              <th>Timestamp</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="data"></tbody>
+        </table>
+        <div id="empty-state" class="empty-state" style="display:none;">
+          <div class="empty-icon">📭</div>
+          <h3>No records found</h3>
+          <p>Try adjusting your search or add new employees.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- IMAGE MODAL -->
+<div id="modal" onclick="closeModal()">
+  <div class="modal-inner" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <img id="modalImg" alt="Employee photo"/>
+  </div>
+</div>
+
+<!-- DELETE CONFIRM MODAL -->
+<div id="confirm-modal">
+  <div class="confirm-box">
+    <div class="icon">🗑️</div>
+    <h3>Delete Record?</h3>
+    <p>This action cannot be undone. The record will be permanently removed.</p>
+    <div class="confirm-actions">
+      <button class="btn-cancel" onclick="cancelDelete()">Cancel</button>
+      <button class="btn-delete" onclick="confirmDelete()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
 <script>
-const pass = prompt("Enter password:");
-if(pass !== "1234"){
-  alert("Access Denied");
-  window.location.href = "/";
-}
+  // ─── AUTH ───────────────────────────────────────────────────────────────────
+  const PASS = "1234";
+  let pendingDeleteIndex = null;
 
-const table = document.getElementById("data");
-
-function loadData() {
-  table.innerHTML = "";
-  let records = JSON.parse(localStorage.getItem("employees")) || [];
-
-  records.reverse().forEach((d, index) => {
-    table.innerHTML += `
-      <tr>
-        <td>${d.name}</td>
-        <td>${d.remarks}</td>
-        <td><img src="${d.image}" onclick="openModal('${d.image}')"/></td>
-        <td>${d.time}</td>
-        <td><button onclick="deleteRow(${records.length - 1 - index})">Delete</button></td>
-      </tr>
-    `;
+  document.getElementById("pw-input").addEventListener("keydown", e => {
+    if (e.key === "Enter") checkAuth();
   });
-}
 
-function deleteRow(index) {
-  let records = JSON.parse(localStorage.getItem("employees")) || [];
-  records.splice(index, 1);
-  localStorage.setItem("employees", JSON.stringify(records));
-  loadData();
-}
+  function checkAuth() {
+    const val = document.getElementById("pw-input").value;
+    if (val === PASS) {
+      document.getElementById("auth-gate").style.display = "none";
+      document.getElementById("app").style.display = "block";
+      loadData();
+    } else {
+      const err = document.getElementById("auth-error");
+      err.textContent = "❌ Incorrect password. Please try again.";
+      document.getElementById("pw-input").value = "";
+      document.getElementById("pw-input").focus();
+      setTimeout(() => err.textContent = "", 3000);
+    }
+  }
 
-function openModal(src) {
-  document.getElementById("modal").style.display = "flex";
-  document.getElementById("modalImg").src = src;
-}
+  // ─── DATA ────────────────────────────────────────────────────────────────────
+  function getRecords() {
+    return JSON.parse(localStorage.getItem("employees")) || [];
+  }
 
-function closeModal() {
-  document.getElementById("modal").style.display = "none";
-}
+  function loadData() {
+    updateStats();
+    renderTable();
+  }
 
-loadData();
+  function updateStats() {
+    const records = getRecords();
+    const today = new Date().toLocaleDateString();
+    document.getElementById("stat-total").textContent = records.length;
+    document.getElementById("stat-images").textContent = records.filter(r => r.image && r.image.length > 5).length;
+    document.getElementById("stat-today").textContent = records.filter(r => r.time && r.time.startsWith(today)).length;
+    document.getElementById("stat-remarks").textContent = records.filter(r => r.remarks && r.remarks.trim()).length;
+  }
+
+  function renderTable() {
+    const query = (document.getElementById("search").value || "").toLowerCase();
+    const records = getRecords();
+    const filtered = records.filter(r =>
+      (r.name || "").toLowerCase().includes(query) ||
+      (r.remarks || "").toLowerCase().includes(query)
+    ).reverse();
+
+    const tbody = document.getElementById("data");
+    const empty = document.getElementById("empty-state");
+
+    if (filtered.length === 0) {
+      tbody.innerHTML = "";
+      empty.style.display = "block";
+      return;
+    }
+    empty.style.display = "none";
+
+    tbody.innerHTML = filtered.map((d, i) => {
+      const allRecords = getRecords();
+      const realIndex = allRecords.findIndex(r => r.name === d.name && r.time === d.time);
+      const initials = (d.name || "?").split(" ").map(w => w[0]).join("").slice(0,2).toUpperCase();
+      const imgHtml = d.image && d.image.length > 5
+        ? `<img class="thumb" src="${d.image}" onclick="openModal('${d.image}')" alt="photo"/>`
+        : `<span style="color:var(--muted);font-size:12px;">No image</span>`;
+
+      return `
+        <tr style="animation-delay:${i * 40}ms">
+          <td data-label="Employee">
+            <div class="td-name">
+              <div class="avatar">${initials}</div>
+              <span class="name-text">${escHtml(d.name || "—")}</span>
+            </div>
+          </td>
+          <td data-label="Remarks">
+            <span class="remarks-chip" title="${escHtml(d.remarks || "")}">${escHtml(d.remarks || "—")}</span>
+          </td>
+          <td data-label="Photo">${imgHtml}</td>
+          <td data-label="Time"><span class="time-text">${escHtml(d.time || "—")}</span></td>
+          <td data-label="Action">
+            <button class="del-btn" onclick="askDelete(${realIndex})">🗑 Delete</button>
+          </td>
+        </tr>`;
+    }).join("");
+  }
+
+  function escHtml(s) {
+    return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+  }
+
+  // ─── DELETE ──────────────────────────────────────────────────────────────────
+  function askDelete(index) {
+    pendingDeleteIndex = index;
+    document.getElementById("confirm-modal").classList.add("active");
+  }
+  function cancelDelete() {
+    pendingDeleteIndex = null;
+    document.getElementById("confirm-modal").classList.remove("active");
+  }
+  function confirmDelete() {
+    if (pendingDeleteIndex === null) return;
+    let records = getRecords();
+    records.splice(pendingDeleteIndex, 1);
+    localStorage.setItem("employees", JSON.stringify(records));
+    document.getElementById("confirm-modal").classList.remove("active");
+    pendingDeleteIndex = null;
+    loadData();
+    showToast("✅ Record deleted successfully");
+  }
+
+  // ─── MODAL ───────────────────────────────────────────────────────────────────
+  function openModal(src) {
+    document.getElementById("modalImg").src = src;
+    document.getElementById("modal").classList.add("active");
+  }
+  function closeModal() {
+    document.getElementById("modal").classList.remove("active");
+  }
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape") { closeModal(); cancelDelete(); }
+  });
+
+  // ─── TOAST ───────────────────────────────────────────────────────────────────
+  function showToast(msg) {
+    const t = document.getElementById("toast");
+    t.textContent = msg;
+    t.classList.add("show");
+    setTimeout(() => t.classList.remove("show"), 3000);
+  }
+
+  // ─── EXPORT CSV ──────────────────────────────────────────────────────────────
+  function exportCSV() {
+    const records = getRecords();
+    if (!records.length) { showToast("⚠️ No records to export"); return; }
+    const rows = [["Name","Remarks","Time"]].concat(
+      records.map(r => [
+        `"${(r.name||"").replace(/"/g,'""')}"`,
+        `"${(r.remarks||"").replace(/"/g,'""')}"`,
+        `"${(r.time||"").replace(/"/g,'""')}"`
+      ])
+    );
+    const csv = rows.map(r => r.join(",")).join("\n");
+    const a = document.createElement("a");
+    a.href = "data:text/csv;charset=utf-8," + encodeURIComponent(csv);
+    a.download = "employees_" + new Date().toISOString().slice(0,10) + ".csv";
+    a.click();
+    showToast("✅ CSV exported!");
+  }
 </script>
-
 </body>
 </html>
