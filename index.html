@@ -4,291 +4,90 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Employee Tracking</title>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
   <script src="https://static.filestackapi.com/filestack-js/3.x.x/filestack.min.js"></script>
   <style>
     :root {
-      --bg: #0a0b0f;
-      --surface: #12141a;
-      --surface2: #1c1f28;
-      --border: rgba(255,255,255,0.07);
-      --accent: #e8ff47;
-      --accent-dim: rgba(232,255,71,0.10);
-      --green: #22c55e;
-      --green-dim: rgba(34,197,94,0.12);
-      --text: #f0f0f0;
-      --muted: #6b7280;
-      --radius: 14px;
+      --bg:#0a0b0f;--surface:#12141a;--surface2:#1c1f28;
+      --border:rgba(255,255,255,0.07);--accent:#e8ff47;
+      --accent-dim:rgba(232,255,71,0.10);--green:#22c55e;
+      --text:#f0f0f0;--muted:#6b7280;
     }
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: 'DM Mono', monospace;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      display: flex; align-items: center; justify-content: center;
-      padding: 24px; overflow-x: hidden;
-    }
-    body::before {
-      content: ''; position: fixed; inset: 0;
-      background-image:
-        linear-gradient(rgba(255,255,255,.015) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,.015) 1px, transparent 1px);
-      background-size: 48px 48px; pointer-events: none; z-index: 0;
-    }
-    body::after {
-      content: ''; position: fixed;
-      top: -200px; left: 50%; transform: translateX(-50%);
-      width: 700px; height: 500px;
-      background: radial-gradient(ellipse, rgba(232,255,71,0.06) 0%, transparent 70%);
-      pointer-events: none; z-index: 0;
-    }
-
-    .card {
-      position: relative; z-index: 1;
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: 24px; width: 100%; max-width: 480px;
-      overflow: hidden;
-      animation: cardIn .5s cubic-bezier(.175,.885,.32,1.275) both;
-    }
-    @keyframes cardIn {
-      from { opacity:0; transform:translateY(32px) scale(.97); }
-      to   { opacity:1; transform:translateY(0) scale(1); }
-    }
-
-    /* HEADER */
-    .card-header { padding: 32px 32px 0; }
-    .header-tag {
-      display: inline-flex; align-items: center; gap: 6px;
-      background: var(--accent-dim); border: 1px solid rgba(232,255,71,0.2);
-      color: var(--accent); font-size: 11px; font-weight: 500;
-      letter-spacing: 1.5px; text-transform: uppercase;
-      padding: 5px 12px; border-radius: 100px; margin-bottom: 16px;
-    }
-    .header-tag::before {
-      content: ''; width: 6px; height: 6px;
-      background: var(--accent); border-radius: 50%;
-      animation: blink 2s infinite;
-    }
-    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.2} }
-    .card-title {
-      font-family: 'Syne', sans-serif;
-      font-size: 28px; font-weight: 800;
-      line-height: 1.1; letter-spacing: -0.5px; margin-bottom: 6px;
-    }
-    .card-title span { color: var(--accent); }
-    .card-subtitle { color: var(--muted); font-size: 13px; margin-bottom: 28px; }
-    .divider { height: 1px; background: var(--border); margin: 0 32px; }
-
-    /* BODY */
-    .card-body { padding: 28px 32px 32px; }
-    .field { margin-bottom: 18px; animation: fieldIn .4s ease both; }
-    .field:nth-child(1){animation-delay:.05s}
-    .field:nth-child(2){animation-delay:.10s}
-    .field:nth-child(3){animation-delay:.15s}
-    @keyframes fieldIn {
-      from{opacity:0;transform:translateX(-10px)}
-      to{opacity:1;transform:translateX(0)}
-    }
-    label {
-      display: block; font-size: 11px; font-weight: 500;
-      text-transform: uppercase; letter-spacing: 1.2px;
-      color: var(--muted); margin-bottom: 8px;
-    }
-    .input-wrap { position: relative; }
-    .input-icon {
-      position: absolute; left: 14px; top: 50%;
-      transform: translateY(-50%); font-size: 15px; pointer-events: none;
-    }
-    input[type="text"] {
-      width: 100%; background: var(--surface2);
-      border: 1px solid var(--border); color: var(--text);
-      font-family: 'DM Mono', monospace;
-      font-size: 14px; padding: 13px 14px 13px 42px;
-      border-radius: 10px; outline: none;
-      transition: border-color .2s, background .2s, box-shadow .2s;
-    }
-    input[type="text"]::placeholder { color: var(--muted); }
-    input[type="text"]:focus {
-      border-color: var(--accent);
-      background: rgba(232,255,71,0.03);
-      box-shadow: 0 0 0 3px rgba(232,255,71,0.08);
-    }
-
-    /* PHOTO OPTIONS */
-    .photo-options {
-      display: grid; grid-template-columns: 1fr 1fr 1fr;
-      gap: 8px; margin-bottom: 12px;
-    }
-    .opt-pill {
-      background: var(--surface2); border: 1.5px solid var(--border);
-      color: var(--muted); font-family: 'Syne', sans-serif;
-      font-size: 11px; font-weight: 700;
-      padding: 12px 6px; border-radius: 10px;
-      cursor: pointer;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center; gap: 6px;
-      transition: all .2s; line-height: 1.3;
-      text-align: center;
-    }
-    .opt-pill .pill-icon { font-size: 22px; }
-    .opt-pill:hover {
-      border-color: var(--accent); color: var(--accent);
-      background: var(--accent-dim); transform: translateY(-2px);
-    }
-    .opt-pill:active { transform: translateY(0); }
-
-    /* PREVIEW */
-    .preview-wrap {
-      display: none; position: relative;
-      border-radius: 12px; overflow: hidden;
-      border: 1.5px solid var(--green);
-      animation: fadeIn .3s ease;
-    }
-    .preview-wrap.active { display: block; }
-    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
-    #preview-img {
-      width: 100%; height: 200px;
-      object-fit: cover; display: block;
-    }
-    .preview-badge {
-      position: absolute; top: 10px; left: 10px;
-      background: var(--green); color: #000;
-      font-family: 'Syne', sans-serif;
-      font-size: 11px; font-weight: 700;
-      padding: 4px 10px; border-radius: 100px;
-    }
-    .preview-remove {
-      position: absolute; top: 10px; right: 10px;
-      background: rgba(0,0,0,.7); border: 1px solid rgba(255,255,255,.15);
-      color: #fff; font-family: 'Syne', sans-serif;
-      font-size: 12px; font-weight: 700;
-      padding: 5px 12px; border-radius: 100px;
-      cursor: pointer; transition: background .2s;
-    }
-    .preview-remove:hover { background: rgba(255,71,87,.7); }
-
-    /* SUBMIT */
-    .submit-btn {
-      width: 100%; background: var(--accent); color: #000;
-      border: none; padding: 15px; border-radius: 12px;
-      font-family: 'Syne', sans-serif;
-      font-size: 15px; font-weight: 800;
-      cursor: pointer; transition: opacity .2s, transform .15s, box-shadow .2s;
-      margin-top: 24px;
-    }
-    .submit-btn:hover:not(:disabled) {
-      opacity:.92; transform:translateY(-2px);
-      box-shadow:0 8px 24px rgba(232,255,71,.25);
-    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'DM Mono',monospace;background:var(--bg);color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;overflow-x:hidden}
+    body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(255,255,255,.015) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.015) 1px,transparent 1px);background-size:48px 48px;pointer-events:none;z-index:0}
+    body::after{content:'';position:fixed;top:-200px;left:50%;transform:translateX(-50%);width:700px;height:500px;background:radial-gradient(ellipse,rgba(232,255,71,0.06) 0%,transparent 70%);pointer-events:none;z-index:0}
+    .card{position:relative;z-index:1;background:var(--surface);border:1px solid var(--border);border-radius:24px;width:100%;max-width:480px;overflow:hidden;animation:cardIn .5s cubic-bezier(.175,.885,.32,1.275) both}
+    @keyframes cardIn{from{opacity:0;transform:translateY(32px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+    .card-header{padding:32px 32px 0}
+    .header-tag{display:inline-flex;align-items:center;gap:6px;background:var(--accent-dim);border:1px solid rgba(232,255,71,0.2);color:var(--accent);font-size:11px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;padding:5px 12px;border-radius:100px;margin-bottom:16px}
+    .header-tag::before{content:'';width:6px;height:6px;background:var(--accent);border-radius:50%;animation:blink 2s infinite}
+    @keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+    .card-title{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;line-height:1.1;letter-spacing:-0.5px;margin-bottom:6px}
+    .card-title span{color:var(--accent)}
+    .card-subtitle{color:var(--muted);font-size:13px;margin-bottom:28px}
+    .divider{height:1px;background:var(--border);margin:0 32px}
+    .card-body{padding:28px 32px 32px}
+    .field{margin-bottom:18px;animation:fieldIn .4s ease both}
+    .field:nth-child(1){animation-delay:.05s}.field:nth-child(2){animation-delay:.1s}.field:nth-child(3){animation-delay:.15s}
+    @keyframes fieldIn{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:translateX(0)}}
+    label{display:block;font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);margin-bottom:8px}
+    .input-wrap{position:relative}
+    .input-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:15px;pointer-events:none}
+    input[type="text"]{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:'DM Mono',monospace;font-size:14px;padding:13px 14px 13px 42px;border-radius:10px;outline:none;transition:border-color .2s,background .2s,box-shadow .2s}
+    input[type="text"]::placeholder{color:var(--muted)}
+    input[type="text"]:focus{border-color:var(--accent);background:rgba(232,255,71,0.03);box-shadow:0 0 0 3px rgba(232,255,71,0.08)}
+    .photo-options{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px}
+    .opt-pill{background:var(--surface2);border:1.5px solid var(--border);color:var(--muted);font-family:'Syne',sans-serif;font-size:11px;font-weight:700;padding:12px 6px;border-radius:10px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;transition:all .2s;text-align:center}
+    .opt-pill .pill-icon{font-size:22px}
+    .opt-pill:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-dim);transform:translateY(-2px)}
+    .opt-pill:active{transform:translateY(0)}
+    .preview-wrap{display:none;position:relative;border-radius:12px;overflow:hidden;border:1.5px solid var(--green);animation:fadeIn .3s ease}
+    .preview-wrap.active{display:block}
+    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+    #preview-img{width:100%;height:200px;object-fit:cover;display:block}
+    .preview-badge{position:absolute;top:10px;left:10px;background:var(--green);color:#000;font-family:'Syne',sans-serif;font-size:11px;font-weight:700;padding:4px 10px;border-radius:100px}
+    .preview-remove{position:absolute;top:10px;right:10px;background:rgba(0,0,0,.7);border:1px solid rgba(255,255,255,.15);color:#fff;font-family:'Syne',sans-serif;font-size:12px;font-weight:700;padding:5px 12px;border-radius:100px;cursor:pointer;transition:background .2s}
+    .preview-remove:hover{background:rgba(255,71,87,.7)}
+    .submit-btn{width:100%;background:var(--accent);color:#000;border:none;padding:15px;border-radius:12px;font-family:'Syne',sans-serif;font-size:15px;font-weight:800;cursor:pointer;transition:opacity .2s,transform .15s,box-shadow .2s;margin-top:24px}
+    .submit-btn:hover:not(:disabled){opacity:.92;transform:translateY(-2px);box-shadow:0 8px 24px rgba(232,255,71,.25)}
     .submit-btn:active:not(:disabled){transform:translateY(0)}
     .submit-btn:disabled{opacity:.5;cursor:not-allowed}
-    .submit-btn .btn-loader {
-      display:none; width:18px; height:18px;
-      border:2px solid rgba(0,0,0,.3); border-top-color:#000;
-      border-radius:50%; animation:spin .7s linear infinite; margin:0 auto;
-    }
+    .btn-loader{display:none;width:18px;height:18px;border:2px solid rgba(0,0,0,.3);border-top-color:#000;border-radius:50%;animation:spin .7s linear infinite;margin:0 auto}
     .submit-btn.loading .btn-text{display:none}
     .submit-btn.loading .btn-loader{display:block}
     @keyframes spin{to{transform:rotate(360deg)}}
-
-    #status {
-      margin-top:16px; min-height:20px;
-      font-size:13px; text-align:center; transition:all .3s;
-    }
+    #status{margin-top:16px;min-height:20px;font-size:13px;text-align:center}
     #status.success{color:var(--green);animation:popIn .3s cubic-bezier(.175,.885,.32,1.275)}
     #status.error{color:#ff4757;animation:shake .3s ease}
     @keyframes popIn{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}}
     @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
-
-    /* FOOTER */
-    .card-footer {
-      padding:16px 32px 24px;
-      display:flex; align-items:center; justify-content:space-between;
-      border-top:1px solid var(--border);
-    }
+    .card-footer{padding:16px 32px 24px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border)}
     .footer-count{font-size:12px;color:var(--muted)}
     .footer-count strong{font-family:'Syne',sans-serif;color:var(--accent);font-size:14px}
-    .view-link{
-      font-size:12px; color:var(--muted); text-decoration:none;
-      display:flex; align-items:center; gap:4px; transition:color .2s;
-    }
+    .view-link{font-size:12px;color:var(--muted);text-decoration:none;display:flex;align-items:center;gap:4px;transition:color .2s}
     .view-link:hover{color:var(--accent)}
-
-    /* CAMERA MODAL */
-    #cam-modal {
-      display:none; position:fixed; inset:0;
-      background:rgba(0,0,0,.92);
-      backdrop-filter:blur(16px);
-      z-index:500;
-      align-items:center; justify-content:center;
-    }
-    #cam-modal.active{display:flex; animation:fadeIn .2s ease}
-    .cam-box {
-      background:var(--surface); border:1px solid var(--border);
-      border-radius:20px; overflow:hidden;
-      width:100%; max-width:420px; margin:16px;
-    }
-    .cam-header {
-      display:flex; align-items:center; justify-content:space-between;
-      padding:16px 20px; border-bottom:1px solid var(--border);
-    }
+    #cam-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);backdrop-filter:blur(16px);z-index:500;align-items:center;justify-content:center}
+    #cam-modal.active{display:flex;animation:fadeIn .2s ease}
+    .cam-box{background:var(--surface);border:1px solid var(--border);border-radius:20px;overflow:hidden;width:100%;max-width:420px;margin:16px}
+    .cam-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border)}
     .cam-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:800}
-    .cam-close {
-      background:rgba(255,255,255,.08); border:none; color:var(--text);
-      width:32px; height:32px; border-radius:50%; font-size:16px;
-      cursor:pointer; display:flex; align-items:center; justify-content:center;
-      transition:background .2s;
-    }
+    .cam-close{background:rgba(255,255,255,.08);border:none;color:var(--text);width:32px;height:32px;border-radius:50%;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s}
     .cam-close:hover{background:rgba(255,71,87,.3)}
-    #video {
-      width:100%; display:block;
-      background:#000; aspect-ratio:4/3; object-fit:cover;
-    }
-    .cam-footer {
-      padding:20px;
-      display:flex; align-items:center; justify-content:center; gap:16px;
-    }
-    .cam-flip {
-      background:var(--surface2); border:1px solid var(--border);
-      color:var(--text); width:46px; height:46px; border-radius:50%;
-      font-size:20px; cursor:pointer;
-      display:flex; align-items:center; justify-content:center;
-      transition:background .2s, transform .2s;
-    }
+    #video{width:100%;display:block;background:#000;aspect-ratio:4/3;object-fit:cover}
+    .cam-footer{padding:20px;display:flex;align-items:center;justify-content:center;gap:16px}
+    .cam-flip{background:var(--surface2);border:1px solid var(--border);color:var(--text);width:46px;height:46px;border-radius:50%;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s,transform .2s}
     .cam-flip:hover{background:var(--surface);transform:rotate(45deg)}
-    .shutter {
-      width:68px; height:68px; border-radius:50%;
-      background:#fff; border:5px solid rgba(255,255,255,.25);
-      box-shadow:0 0 0 3px var(--surface);
-      cursor:pointer;
-      transition:transform .1s, background .1s;
-    }
+    .shutter{width:68px;height:68px;border-radius:50%;background:#fff;border:5px solid rgba(255,255,255,.25);box-shadow:0 0 0 3px var(--surface);cursor:pointer;transition:transform .1s,background .1s}
     .shutter:hover{background:var(--accent);transform:scale(1.06)}
     .shutter:active{transform:scale(.92)}
     #canvas{display:none}
-
-    /* TOAST */
-    #toast {
-      position:fixed; bottom:28px; left:50%;
-      transform:translateX(-50%) translateY(80px);
-      background:var(--surface); border:1px solid var(--border);
-      padding:12px 22px; border-radius:100px;
-      font-size:13px; color:var(--text); z-index:999;
-      transition:transform .35s cubic-bezier(.175,.885,.32,1.275);
-      white-space:nowrap; pointer-events:none;
-    }
+    #toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--surface);border:1px solid var(--border);padding:12px 22px;border-radius:100px;font-size:13px;color:var(--text);z-index:999;transition:transform .35s cubic-bezier(.175,.885,.32,1.275);white-space:nowrap;pointer-events:none}
     #toast.show{transform:translateX(-50%) translateY(0)}
-
-    @media(max-width:520px){
-      .card-header,.card-body,.card-footer{padding-left:20px;padding-right:20px}
-      .divider{margin:0 20px}
-      .card-title{font-size:22px}
-    }
+    @media(max-width:520px){.card-header,.card-body,.card-footer{padding-left:20px;padding-right:20px}.divider{margin:0 20px}.card-title{font-size:22px}}
   </style>
 </head>
 <body>
-
 <div class="card">
   <div class="card-header">
     <div class="header-tag">Employee Portal</div>
@@ -296,7 +95,6 @@
     <p class="card-subtitle">Fill in your details and capture or upload your photo.</p>
   </div>
   <div class="divider"></div>
-
   <div class="card-body">
     <div class="field">
       <label>Full Name</label>
@@ -305,7 +103,6 @@
         <input type="text" id="name" placeholder="e.g. Ravi Kumar" autocomplete="off"/>
       </div>
     </div>
-
     <div class="field">
       <label>Remarks <span style="color:var(--muted);font-size:10px;">(optional)</span></label>
       <div class="input-wrap">
@@ -313,42 +110,31 @@
         <input type="text" id="remarks" placeholder="e.g. WFH, On-site, Late..." autocomplete="off"/>
       </div>
     </div>
-
     <div class="field">
       <label>Photo</label>
       <div class="photo-options">
-        <button class="opt-pill" onclick="openLiveCamera()">
-          <span class="pill-icon">📷</span>Webcam / Selfie
-        </button>
-        <button class="opt-pill" onclick="openDeviceCamera()">
-          <span class="pill-icon">📱</span>Phone Camera
-        </button>
-        <button class="opt-pill" onclick="openGallery()">
-          <span class="pill-icon">🖼</span>Gallery
-        </button>
+        <button class="opt-pill" onclick="openLiveCamera()"><span class="pill-icon">📷</span>Webcam</button>
+        <button class="opt-pill" onclick="openDeviceCamera()"><span class="pill-icon">📱</span>Phone Cam</button>
+        <button class="opt-pill" onclick="openGallery()"><span class="pill-icon">🖼</span>Gallery</button>
       </div>
-
       <div class="preview-wrap" id="preview-wrap">
-        <img id="preview-img" alt="Captured photo"/>
+        <img id="preview-img" alt="Photo"/>
         <div class="preview-badge">✓ Photo Ready</div>
         <button class="preview-remove" onclick="clearPhoto()">✕ Remove</button>
       </div>
     </div>
-
     <button class="submit-btn" id="submit-btn" onclick="submitRecord()">
       <span class="btn-text">✅ &nbsp;Submit Check-In</span>
       <span class="btn-loader"></span>
     </button>
     <div id="status"></div>
   </div>
-
   <div class="card-footer">
-    <div class="footer-count"><strong id="record-count">0</strong> records logged</div>
+    <div class="footer-count"><strong id="record-count">—</strong> records logged</div>
     <a class="view-link" href="admin_dashboard.html">View Dashboard →</a>
   </div>
 </div>
 
-<!-- LIVE CAMERA MODAL -->
 <div id="cam-modal">
   <div class="cam-box">
     <div class="cam-header">
@@ -358,34 +144,44 @@
     <video id="video" autoplay playsinline muted></video>
     <canvas id="canvas"></canvas>
     <div class="cam-footer">
-      <button class="cam-flip" onclick="flipCamera()" title="Flip camera">🔄</button>
-      <button class="shutter" onclick="captureSnap()" title="Take photo"></button>
+      <button class="cam-flip" onclick="flipCamera()">🔄</button>
+      <button class="shutter" onclick="captureSnap()"></button>
     </div>
   </div>
 </div>
 
-<!-- Hidden file inputs -->
 <input type="file" id="device-cam-input" accept="image/*" capture="environment" style="display:none" onchange="handleFile(event)"/>
 <input type="file" id="gallery-input" accept="image/*" style="display:none" onchange="handleFile(event)"/>
-
 <div id="toast"></div>
 
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+  import { getFirestore, collection, addDoc, getCountFromServer } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+
+  const app = initializeApp({
+    apiKey: "AIzaSyAFXS1iGSx5Ad30slLQrqVRv-81_nl0oJo",
+    authDomain: "snap-4c76c.firebaseapp.com",
+    projectId: "snap-4c76c",
+    storageBucket: "snap-4c76c.firebasestorage.app",
+    messagingSenderId: "674981412311",
+    appId: "1:674981412311:web:96fe09add0f9dee03b5f92"
+  });
+  const db = getFirestore(app);
+
+  window._db = db;
+  window._addDoc = addDoc;
+  window._collection = collection;
+
+  try {
+    const snap = await getCountFromServer(collection(db, "employees"));
+    document.getElementById("record-count").textContent = snap.data().count;
+  } catch(e) { document.getElementById("record-count").textContent = "0"; }
+</script>
+
 <script>
-  const API_KEY = "A2VXy8g3bRpe8sFbMAoVVz";
-  const client  = filestack.init(API_KEY);
+  const FS = filestack.init("A2VXy8g3bRpe8sFbMAoVVz");
+  let capturedImage = "", mediaStream = null, facingMode = "user";
 
-  let capturedImage = "";
-  let mediaStream   = null;
-  let facingMode    = "user";
-
-  // Count
-  function updateCount() {
-    const r = JSON.parse(localStorage.getItem("employees")) || [];
-    document.getElementById("record-count").textContent = r.length;
-  }
-  updateCount();
-
-  // ── 1. WEBCAM MODAL ──────────────────────────────────────
   async function openLiveCamera() {
     document.getElementById("cam-modal").classList.add("active");
     await startStream();
@@ -393,126 +189,68 @@
   async function startStream() {
     if (mediaStream) mediaStream.getTracks().forEach(t => t.stop());
     try {
-      mediaStream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode, width:{ideal:1280}, height:{ideal:720} }
-      });
+      mediaStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode, width:{ideal:1280}, height:{ideal:720} } });
       document.getElementById("video").srcObject = mediaStream;
-    } catch(e) {
-      showToast("⚠️ Camera not available. Try Phone Camera or Gallery.");
-      closeLiveCamera();
-    }
+    } catch(e) { showToast("⚠️ Camera not available. Try Phone Cam or Gallery."); closeLiveCamera(); }
   }
-  async function flipCamera() {
-    facingMode = facingMode === "user" ? "environment" : "user";
-    await startStream();
-  }
+  async function flipCamera() { facingMode = facingMode === "user" ? "environment" : "user"; await startStream(); }
   function captureSnap() {
-    const video  = document.getElementById("video");
-    const canvas = document.getElementById("canvas");
-    canvas.width  = video.videoWidth  || 640;
-    canvas.height = video.videoHeight || 480;
-    canvas.getContext("2d").drawImage(video, 0, 0);
-    capturedImage = canvas.toDataURL("image/jpeg", 0.92);
-    showPreview(capturedImage);
-    closeLiveCamera();
-    showToast("📸 Photo captured!");
+    const v = document.getElementById("video"), c = document.getElementById("canvas");
+    c.width = v.videoWidth || 640; c.height = v.videoHeight || 480;
+    c.getContext("2d").drawImage(v, 0, 0);
+    capturedImage = c.toDataURL("image/jpeg", 0.85);
+    showPreview(capturedImage); closeLiveCamera(); showToast("📸 Photo captured!");
   }
   function closeLiveCamera() {
     document.getElementById("cam-modal").classList.remove("active");
     if (mediaStream) { mediaStream.getTracks().forEach(t => t.stop()); mediaStream = null; }
   }
-
-  // ── 2. DEVICE / PHONE CAMERA ─────────────────────────────
-  function openDeviceCamera() {
-    document.getElementById("device-cam-input").click();
-  }
-
-  // ── 3. GALLERY (Filestack picker) ────────────────────────
+  function openDeviceCamera() { document.getElementById("device-cam-input").click(); }
   function openGallery() {
-    client.picker({
-      accept: ['image/*'],
-      maxSize: 2 * 1024 * 1024,
-      onUploadDone(res) {
-        capturedImage = res.filesUploaded[0].url;
-        showPreview(capturedImage);
-        showToast("🖼 Photo uploaded!");
-      }
+    FS.picker({ accept:['image/*'], maxSize:2*1024*1024,
+      onUploadDone(res) { capturedImage = res.filesUploaded[0].url; showPreview(capturedImage); showToast("🖼 Photo uploaded!"); }
     }).open();
   }
-
-  // ── FILE INPUT READER ────────────────────────────────────
   function handleFile(e) {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = ev => {
-      capturedImage = ev.target.result;
-      showPreview(capturedImage);
-      showToast("📸 Photo ready!");
-    };
-    reader.readAsDataURL(file);
-    e.target.value = "";
+    const f = e.target.files[0]; if (!f) return;
+    const r = new FileReader();
+    r.onload = ev => { capturedImage = ev.target.result; showPreview(capturedImage); showToast("📸 Photo ready!"); };
+    r.readAsDataURL(f); e.target.value = "";
   }
+  function showPreview(src) { document.getElementById("preview-img").src = src; document.getElementById("preview-wrap").classList.add("active"); }
+  function clearPhoto() { capturedImage = ""; document.getElementById("preview-img").src = ""; document.getElementById("preview-wrap").classList.remove("active"); }
 
-  // ── PREVIEW ──────────────────────────────────────────────
-  function showPreview(src) {
-    document.getElementById("preview-img").src = src;
-    document.getElementById("preview-wrap").classList.add("active");
-  }
-  function clearPhoto() {
-    capturedImage = "";
-    document.getElementById("preview-img").src = "";
-    document.getElementById("preview-wrap").classList.remove("active");
-  }
-
-  // ── SUBMIT ───────────────────────────────────────────────
-  function submitRecord() {
-    const name    = document.getElementById("name").value.trim();
+  async function submitRecord() {
+    const name = document.getElementById("name").value.trim();
     const remarks = document.getElementById("remarks").value.trim();
-    const st      = document.getElementById("status");
-    const btn     = document.getElementById("submit-btn");
-
+    const st = document.getElementById("status"), btn = document.getElementById("submit-btn");
     st.className = ""; st.textContent = "";
-
-    if (!name) {
-      st.className = "error"; st.textContent = "⚠️ Please enter your name.";
-      document.getElementById("name").focus(); return;
-    }
-    if (!capturedImage) {
-      st.className = "error"; st.textContent = "⚠️ Please capture or upload a photo.";
-      return;
-    }
-
+    if (!name) { st.className="error"; st.textContent="⚠️ Please enter your name."; document.getElementById("name").focus(); return; }
+    if (!capturedImage) { st.className="error"; st.textContent="⚠️ Please capture or upload a photo."; return; }
+    if (!window._db) { st.className="error"; st.textContent="⚠️ Database not ready, please wait..."; return; }
     btn.classList.add("loading"); btn.disabled = true;
-    setTimeout(() => {
-      const records = JSON.parse(localStorage.getItem("employees")) || [];
-      records.push({ name, remarks, image: capturedImage, time: new Date().toLocaleString() });
-      localStorage.setItem("employees", JSON.stringify(records));
-
+    try {
+      await window._addDoc(window._collection(window._db, "employees"), {
+        name, remarks, image: capturedImage,
+        time: new Date().toLocaleString(), timestamp: Date.now()
+      });
       btn.classList.remove("loading"); btn.disabled = false;
-      st.className = "success"; st.textContent = "✅ Check-in recorded successfully!";
-      updateCount();
-
-      setTimeout(() => {
-        document.getElementById("name").value = "";
-        document.getElementById("remarks").value = "";
-        clearPhoto();
-        st.className = ""; st.textContent = "";
-      }, 2500);
-    }, 800);
+      st.className="success"; st.textContent="✅ Check-in recorded successfully!";
+      const cur = parseInt(document.getElementById("record-count").textContent) || 0;
+      document.getElementById("record-count").textContent = cur + 1;
+      showToast("✅ Saved to Firebase!");
+      setTimeout(() => { document.getElementById("name").value=""; document.getElementById("remarks").value=""; clearPhoto(); st.className=""; st.textContent=""; }, 2500);
+    } catch(err) {
+      btn.classList.remove("loading"); btn.disabled = false;
+      st.className="error"; st.textContent="❌ Failed to save. Check your connection.";
+      console.error(err);
+    }
   }
+  function showToast(msg) { const t=document.getElementById("toast"); t.textContent=msg; t.classList.add("show"); setTimeout(()=>t.classList.remove("show"),3000); }
+  document.addEventListener("keydown", e => { if(e.key==="Escape") closeLiveCamera(); });
 
-  // ── TOAST ────────────────────────────────────────────────
-  function showToast(msg) {
-    const t = document.getElementById("toast");
-    t.textContent = msg;
-    t.classList.add("show");
-    setTimeout(() => t.classList.remove("show"), 3000);
-  }
-
-  document.addEventListener("keydown", e => {
-    if (e.key === "Escape") closeLiveCamera();
-  });
+  // Expose to inline onclick handlers
+  Object.assign(window, { openLiveCamera, openDeviceCamera, openGallery, flipCamera, captureSnap, closeLiveCamera, handleFile, clearPhoto, submitRecord });
 </script>
 </body>
 </html>
