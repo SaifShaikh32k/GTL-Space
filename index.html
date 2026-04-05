@@ -143,8 +143,8 @@
 
   function takeSnap() {
     const v = document.getElementById('video'), c = document.getElementById('canvas');
-    c.width = 640; c.height = 480; // Standard resolution
-    c.getContext('2d').drawImage(v, 0, 0, 640, 480);
+    c.width = 1280; c.height = 720; // Standard resolution
+    c.getContext('2d').drawImage(v, 0, 0, 1280, 720);
     capturedImage = c.toDataURL("image/jpeg", 0.8);
     document.getElementById('preview-img').src = capturedImage;
     document.getElementById('preview-wrap').classList.add('active');
