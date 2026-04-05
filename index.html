@@ -3,64 +3,77 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Employee Tracking</title>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <title>Employee Check-In Portal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
   <style>
     :root {
-      --bg:#0a0b0f;--surface:#12141a;--surface2:#1c1f28;
-      --border:rgba(255,255,255,0.07);--accent:#e8ff47;
-      --accent-dim:rgba(232,255,71,0.10);--green:#22c55e;
-      --text:#f0f0f0;--muted:#6b7280;
+      --bg:#0a0b10;--surface:#13151c;--surface2:#1c1f2a;
+      --border:rgba(255,255,255,0.08);--accent:#e8ff47;
+      --accent-dim:rgba(232,255,71,0.12);--green:#22c55e;
+      --text:#f8f9fa;--muted:#8b949e;
     }
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:'DM Mono',monospace;background:var(--bg);color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
-    .card{background:var(--surface);border:1px solid var(--border);border-radius:24px;width:100%;max-width:480px;overflow:hidden;position:relative;z-index:1}
-    .card-header{padding:32px 32px 20px}
-    .header-tag{display:inline-flex;align-items:center;gap:6px;background:var(--accent-dim);border:1px solid rgba(232,255,71,0.2);color:var(--accent);font-size:11px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;padding:5px 12px;border-radius:100px;margin-bottom:16px}
-    .card-title{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;line-height:1.1;margin-bottom:6px}
+    body{font-family:'DM Mono',monospace;background:var(--bg);color:var(--text);min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:20px;overflow-x:hidden}
+    
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:28px;width:100%;max-width:440px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,0.5)}
+    .card-header{padding:36px 32px 10px;text-align:center}
+    .header-tag{display:inline-flex;align-items:center;gap:6px;background:var(--accent-dim);border:1px solid rgba(232,255,71,0.3);color:var(--accent);font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;padding:6px 14px;border-radius:100px;margin-bottom:16px}
+    .card-title{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;line-height:1;margin-bottom:8px}
     .card-title span{color:var(--accent)}
-    .card-body{padding:0 32px 32px}
-    .field{margin-bottom:18px}
-    label{display:block;font-size:11px;font-weight:500;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
-    input[type="text"]{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:13px;border-radius:10px;outline:none;font-family:inherit}
-    input[type="text"]:focus{border-color:var(--accent)}
-    .photo-options{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
-    .opt-pill{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:12px;border-radius:10px;cursor:pointer;font-family:'Syne',sans-serif;font-weight:700;font-size:12px}
-    .preview-wrap{display:none;margin-top:10px;border-radius:12px;overflow:hidden;border:2px solid var(--green)}
+    
+    .card-body{padding:24px 32px 36px}
+    .field{margin-bottom:22px}
+    label{display:block;font-size:11px;font-weight:600;text-transform:uppercase;color:var(--muted);margin-bottom:10px;letter-spacing:1px}
+    input[type="text"]{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:15px;border-radius:14px;outline:none;font-family:inherit;transition:all 0.2s}
+    input[type="text"]:focus{border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-dim)}
+    
+    .photo-options{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+    .opt-pill{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:14px;border-radius:14px;cursor:pointer;font-family:'Syne',sans-serif;font-weight:700;font-size:12px;transition:0.2s}
+    .opt-pill:hover{background:var(--accent);color:#000}
+    
+    .preview-wrap{display:none;margin-top:10px;border-radius:14px;overflow:hidden;border:2px solid var(--green);position:relative}
     .preview-wrap.active{display:block}
-    #preview-img{width:100%;height:200px;object-fit:cover}
-    .submit-btn{width:100%;background:var(--accent);color:#000;border:none;padding:16px;border-radius:12px;font-family:'Syne',sans-serif;font-weight:800;font-size:16px;cursor:pointer;margin-top:20px}
-    .submit-btn:disabled{opacity:0.5;cursor:not-allowed}
-    #status{margin-top:15px;text-align:center;font-size:13px}
+    #preview-img{width:100%;height:220px;object-fit:cover;display:block}
+    
+    .submit-btn{width:100%;background:var(--accent);color:#000;border:none;padding:18px;border-radius:16px;font-family:'Syne',sans-serif;font-weight:800;font-size:16px;cursor:pointer;margin-top:10px;transition:0.2s}
+    .submit-btn:active{transform:scale(0.98)}
+    .submit-btn:disabled{opacity:0.4;cursor:not-allowed}
+    
+    #status{margin-top:18px;text-align:center;font-size:13px;font-weight:500}
     .success{color:var(--green)}
-    .error{color:#ff4757}
-    #cam-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:100;flex-direction:column;align-items:center;justify-content:center}
+    .error{color:#ff4b5c}
+
+    /* Camera Modal */
+    #cam-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:1000;flex-direction:column;align-items:center;justify-content:center;padding:20px}
     #cam-modal.active{display:flex}
-    video{width:90%;max-width:400px;border-radius:15px;background:#000}
-    .cam-btns{margin-top:20px;display:flex;gap:20px}
-    .shutter{width:60px;height:60px;background:#fff;border-radius:50%;border:5px solid #333;cursor:pointer}
+    #video{width:100%;max-width:400px;border-radius:24px;background:#000;transform:scaleX(1)}
+    #video.mirrored{transform:scaleX(-1)} /* Only mirror front cam */
+    .cam-btns{margin-top:24px;display:flex;align-items:center;gap:20px}
+    .shutter{width:70px;height:70px;background:#fff;border-radius:50%;border:6px solid rgba(255,255,255,0.3);cursor:pointer;transition:0.1s}
+    .shutter:active{transform:scale(0.9)}
+    .flip-btn{background:var(--surface2);border:1px solid var(--border);color:#fff;width:50px;height:50px;border-radius:50%;cursor:pointer}
   </style>
 </head>
 <body>
 
 <div class="card">
   <div class="card-header">
-    <div class="header-tag">Live Portal</div>
-    <h1 class="card-title">Check-In <span>Now</span></h1>
+    <div class="header-tag">Official Check-In</div>
+    <h1 class="card-title">Employee <span>Portal</span></h1>
   </div>
   <div class="card-body">
     <div class="field">
       <label>Full Name</label>
-      <input type="text" id="name" placeholder="Enter your name">
+      <input type="text" id="name" placeholder="e.g. Rahul Sharma" autocomplete="off">
     </div>
     <div class="field">
       <label>Remarks</label>
-      <input type="text" id="remarks" placeholder="Optional notes">
+      <input type="text" id="remarks" placeholder="Location or Work Type">
     </div>
     <div class="field">
-      <label>Photo</label>
+      <label>Photo Verification</label>
       <div class="photo-options">
-        <button class="opt-pill" onclick="openCam()">📷 Camera</button>
+        <button class="opt-pill" onclick="openCam()">📷 Use Camera</button>
         <button class="opt-pill" onclick="document.getElementById('file-input').click()">🖼 Upload</button>
       </div>
       <input type="file" id="file-input" accept="image/*" style="display:none" onchange="handleFile(event)">
@@ -68,7 +81,7 @@
         <img id="preview-img">
       </div>
     </div>
-    <button class="submit-btn" id="submit-btn" onclick="submitRecord()">✅ Submit to Google</button>
+    <button class="submit-btn" id="submit-btn" onclick="submitRecord()">🚀 SUBMIT RECORD</button>
     <div id="status"></div>
   </div>
 </div>
@@ -77,20 +90,50 @@
   <video id="video" autoplay playsinline></video>
   <canvas id="canvas" style="display:none"></canvas>
   <div class="cam-btns">
-    <button class="opt-pill" onclick="closeCam()">Cancel</button>
+    <button class="opt-pill" onclick="closeCam()">✕ Close</button>
     <div class="shutter" onclick="takeSnap()"></div>
+    <button class="flip-btn" onclick="switchCam()">🔄</button>
   </div>
 </div>
 
 <script>
-  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwgS0X_9vFdhQR7mG2Tr3LIqpel0dnTXd-tfR0VRRcf_7h65_q-1Hc1SFueDSTMtcxD/exec";
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxNIyodplrOGG44dfZDPktNV5qLJ_vyhFsBF5U4l9x3A0SS_0vnA5ImdbXMtqbNCukd/exec";
   let capturedImage = "";
   let stream = null;
+  let currentMode = "environment"; // Start with BACK camera
 
   async function openCam() {
     document.getElementById('cam-modal').classList.add('active');
-    stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
-    document.getElementById('video').srcObject = stream;
+    startStream();
+  }
+
+  async function startStream() {
+    if (stream) stream.getTracks().forEach(t => t.stop());
+    
+    const constraints = {
+      video: { 
+        facingMode: currentMode,
+        width: { ideal: 1280 },
+        height: { ideal: 720 }
+      }
+    };
+
+    try {
+      stream = await navigator.mediaDevices.getUserMedia(constraints);
+      const v = document.getElementById('video');
+      v.srcObject = stream;
+      // Mirror front cam, don't mirror back cam
+      v.className = currentMode === "user" ? "mirrored" : "";
+    } catch (e) {
+      // Fallback if specific mode fails
+      stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      document.getElementById('video').srcObject = stream;
+    }
+  }
+
+  function switchCam() {
+    currentMode = (currentMode === "user") ? "environment" : "user";
+    startStream();
   }
 
   function closeCam() {
@@ -100,9 +143,9 @@
 
   function takeSnap() {
     const v = document.getElementById('video'), c = document.getElementById('canvas');
-    c.width = 400; c.height = 300;
-    c.getContext('2d').drawImage(v, 0, 0, 400, 300);
-    capturedImage = c.toDataURL("image/jpeg", 0.7);
+    c.width = 640; c.height = 480; // Standard resolution
+    c.getContext('2d').drawImage(v, 0, 0, 640, 480);
+    capturedImage = c.toDataURL("image/jpeg", 0.8);
     document.getElementById('preview-img').src = capturedImage;
     document.getElementById('preview-wrap').classList.add('active');
     closeCam();
@@ -123,29 +166,34 @@
     const remarks = document.getElementById('remarks').value.trim();
     const st = document.getElementById('status'), btn = document.getElementById('submit-btn');
 
-    if (!name || !capturedImage) return alert("Please provide Name and Photo");
+    if (!name || !capturedImage) {
+      st.className = "error";
+      st.textContent = "⚠️ Please enter your name and take a photo.";
+      return;
+    }
 
-    btn.disabled = true; st.textContent = "⏳ Uploading... Please wait.";
+    btn.disabled = true; 
+    st.className = "";
+    st.textContent = "⏳ Syncing with Google Sheets...";
 
     try {
-      // We use a simple fetch POST
-      const response = await fetch(SCRIPT_URL, {
+      await fetch(SCRIPT_URL, {
         method: "POST",
-        mode: "no-cors", // Required for Google Script Web Apps
+        mode: "no-cors",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, remarks, image: capturedImage })
       });
 
-      // Since we use no-cors, we can't read the response, but we can assume success if no error
       st.className = "success";
-      st.textContent = "✅ Success! Check your Google Sheet.";
+      st.textContent = "✅ CHECK-IN SUCCESSFUL!";
+      // Clear form
       document.getElementById('name').value = "";
       document.getElementById('remarks').value = "";
       document.getElementById('preview-wrap').classList.remove('active');
       capturedImage = "";
     } catch (e) {
       st.className = "error";
-      st.textContent = "❌ Error: " + e.message;
+      st.textContent = "❌ Network Error. Try again.";
     } finally {
       btn.disabled = false;
     }
